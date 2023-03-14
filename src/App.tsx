@@ -1,26 +1,43 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import { FC, useEffect, useState } from "react";
+import "./App.css";
+import Carousel from "./components/Carousel";
+import { IImage } from "./interfaces";
 
-function App() {
+const App: FC = () => {
+  const [images, setImages] = useState<IImage[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [currIndex, setCurrIndex] = useState<number>(0);
+  const url = "https://jsonplaceholder.typicode.com/photos";
+
+  useEffect(() => {
+    const loadImages = async () => {
+      try {
+        const response = await fetch(url);
+        const data = await response.json();
+        setImages(data);
+      } catch (error) {
+        console.log("Fetching error: ", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadImages();
+  }, [setImages, setLoading]);
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      {loading ? (
+        <div>Loading...</div>
+      ) : (
+        <Carousel
+          images={images}
+          currIndex={currIndex}
+          setCurrIndex={setCurrIndex}
+        ></Carousel>
+      )}
     </div>
   );
-}
+};
 
 export default App;
